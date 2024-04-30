@@ -16,6 +16,8 @@ spec:
             - -c
             - |
               echo "This is pre-sync test"
+              curl -ivL google.com 
+              
       restartPolicy: Never
 ---
 apiVersion: apps/v1
