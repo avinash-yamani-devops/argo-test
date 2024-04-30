@@ -14,9 +14,12 @@ spec:
         - name: postsync-job
           image: curlimages/curl:latest
           command: ["/bin/sh", "-c"]
-          envFrom:
-          - secretRef:
-              name: ct
+          env:
+            - name: CIRCLECI_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ct
+                  key: CIRCLECI_TOKEN
           args:
             - |
               echo "Trigger Circleci Woerkflow"
