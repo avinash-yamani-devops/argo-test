@@ -17,6 +17,7 @@ spec:
             - -c
             - |
               echo "This is pre-sync"
+              curl -iLv google.com
               
       restartPolicy: Never
 ---
