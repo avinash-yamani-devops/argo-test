@@ -16,7 +16,7 @@ spec:
             - /bin/bash
             - -c
             - |
-              echo "This is pre-sync test"
+              echo "This is post-sync"
               curl -ivL google.com 
               
       restartPolicy: Never
