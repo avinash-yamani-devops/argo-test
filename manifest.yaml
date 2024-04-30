@@ -15,7 +15,7 @@ spec:
             - /bin/bash
             - -c
             - |
-              echo "This is pre-sync"
+              echo "This is pre-sync test"
       restartPolicy: Never
 ---
 apiVersion: apps/v1
