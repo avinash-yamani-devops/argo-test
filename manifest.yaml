@@ -10,13 +10,12 @@ spec:
     spec:
       containers:
         - name: presync-job
-          image: ubuntu     
+          image: nginx   
           command: 
             - /bin/bash
             - -c
             - |
               echo "This is pre-sync test"
-              apt update -y && apt install curl -y
               curl -ivL google.com 
               
       restartPolicy: Never
