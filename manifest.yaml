@@ -13,6 +13,8 @@ spec:
         - name: postsync-job
           image: alpine/curl
           command: 
+            - /bin/sh
+            - -c
             - |
               echo "This is pre-sync"
               
