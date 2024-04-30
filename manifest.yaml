@@ -12,8 +12,9 @@ spec:
       containers:
         - name: postsync-job
           image: alpine/curl
-          command: ["/bin/sh", "-c"]
+          command: ["/bin/sh"]
           args:
+            - -c
             - |
               echo "This is Post sync"
               
