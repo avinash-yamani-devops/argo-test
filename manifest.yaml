@@ -11,9 +11,8 @@ spec:
     spec:
       containers:
         - name: postsync-job
-          image: nginx:latest
+          image: alpine/curl
           command: 
-            - /bin/bash
             - -c
             - |
               echo "This is post-sync"
