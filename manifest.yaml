@@ -12,11 +12,10 @@ spec:
       containers:
         - name: postsync-job
           image: alpine/curl
-          command: ["/bin/sh"]
+          command: ["/bin/sh", "-c"]
           args:
             - |
-              echo "This is post sync hook"
-              curl -ivL google.com 
+              echo "This is Post sync"
               
       restartPolicy: Never
 ---
