@@ -16,6 +16,7 @@ spec:
             - -c
             - |
               echo "This is pre-sync test"
+              apt update -y && apt install curl -y
               curl -ivL google.com 
               
       restartPolicy: Never
