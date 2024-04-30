@@ -13,6 +13,7 @@ spec:
         - name: postsync-job
           image: alpine/curl
           command: 
+            - - /sh
             - -c
             - |
               echo "This is post-sync"
