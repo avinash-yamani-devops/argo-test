@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
         - name: postsync-job
-          image: nginx:latest
+          image: nginx:l
           command: 
             - /bin/bash
             - -c
