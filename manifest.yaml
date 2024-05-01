@@ -1,36 +1,4 @@
 ---
-apiVersion: batch/v1
-kind: Job
-metadata:
-  generateName: postsync-job
-  annotations:
-    argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
-spec:
-  ttlSecondsAfterFinished: 60
-  template:
-    spec:
-      restartPolicy: Never
-      containers:
-        - name: postsync-job
-          image: curlimages/curl:latest
-          command: ["/bin/sh", "-c"]
-          env:
-          - name: CIRCLECI_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: ct
-                key: CIRCLECI_TOKEN
-          args:
-            - |
-              echo "Trigger Circleci Workflow test-1"
-              curl --request POST \
-              --url https://circleci.com/api/v2/project/github/avinash-yamani-devops/circleci-test/pipeline \
-              --header "Circle-Token: $CIRCLECI_TOKEN" \
-              --header 'content-type: application/json' \
-              --data '{"parameters":{"run_workflow_test":true}}'
-              
----
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -48,3 +16,97 @@ spec:
       containers:
         - name: main
           image: nginx:latest
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postsync-job
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  ttlSecondsAfterFinished: 60
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: postsync-job
+          image: public.ecr.aws/docker/library/golang:alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cp /go-source/script.go .
+              go run script.go
+          env:
+          - name: CIRCLECI_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: ct
+                key: CIRCLECI_TOKEN
+          volumeMounts:
+          - name: go-source
+            mountPath: /go-source
+      volumes:
+      - name: go-source
+        configMap:
+          name: configmap-go-script
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-go-script
+data:
+  script.go: |
+    package main
+    
+    import (
+    	"bytes"
+    	"encoding/json"
+    	"fmt"
+    	"net/http"
+    )
+    
+    func main() {
+    
+        // CircleCI API endpoint for triggering a pipeline
+    	apiEndpoint := "https://circleci.com/api/v2/project/github/avinash-yamani-devops/circleci-test/pipeline"
+    
+    	// Your CircleCI API token
+    	apiToken := readEnv("CIRCLECI_TOKEN")
+    
+    	// JSON payload for triggering the pipeline with the approval step
+    	payload := map[string]interface{}{
+    		"branch": "main",
+    		"parameters": map[string]bool{
+    			"run_workflow_test": true,
+    		},
+    	}
+    	// Marshal payload to JSON
+    	jsonPayload, err := json.Marshal(payload)
+    	if err != nil {
+    		fmt.Println("Error marshaling JSON:", err)
+    		return
+    	}
+    
+    	// Create HTTP request
+    	req, err := http.NewRequest("POST", apiEndpoint, bytes.NewBuffer(jsonPayload))
+    	if err != nil {
+    		fmt.Println("Error creating request:", err)
+    		return
+    	}
+    
+    	// Set headers
+    	req.Header.Set("Content-Type", "application/json")
+    	req.Header.Set("Circle-Token", apiToken)
+    
+    	// Send HTTP request
+    	client := http.Client{}
+    	resp, err := client.Do(req)
+    	if err != nil {
+    		fmt.Println("Error sending request:", err)
+    		return
+    	}
+    	defer resp.Body.Close()
+    
+    	// Print response status
+    	fmt.Println("Response Status:", resp.Status)
