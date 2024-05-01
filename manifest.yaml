@@ -64,6 +64,7 @@ data:
     	"encoding/json"
     	"fmt"
     	"net/http"
+      "os"
     )
     
     func main() {
@@ -110,4 +111,12 @@ data:
     
     	// Print response status
     	fmt.Println("Response Status:", resp.Status)
-     }
+    }
+
+    func readEnv(envValue string) string {
+      value := os.Getenv(envValue)
+      if value == "" {
+        panic(fmt.Sprintf("Enviroment variable '%s' hasn't found.", envValue))
+      }
+      return value
+    }
